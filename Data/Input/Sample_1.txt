@@ -1,0 +1,1 @@
+The operations team reported repeated faults in the motor drive system during the evening shift. Engineering should review the fault logs and identify the possible root cause. The maintenance team needs to inspect the unit before the next production cycle. A short update should be shared with the manager by tomorrow morning.
