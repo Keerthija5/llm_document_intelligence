@@ -149,6 +149,6 @@ This project showed that model comparison is important even for a simple documen
 
 ## Author
 
-Keerthija
+Keerthija Bontu 
 M.Eng. Information Technology (Specialization: Artificial Intelligence)
 
