@@ -1,5 +1,8 @@
 # LLM-Based Document Intelligence System
+
 A simple LLM-based system for processing unstructured documents, comparing model outputs, and generating structured insights.
+
+---
 
 ## Overview
 
@@ -19,7 +22,7 @@ and automatically extract useful information from them.
 
 * Built a pipeline to process multiple text documents
 * Used Hugging Face models for summarization
-* Compared two models: **BART and T5**
+* Compared two models: **BART** and **T5**
 * Implemented a rule-based evaluation system to compare outputs
 * Extracted action items and keywords using NLP techniques
 * Generated structured outputs in JSON and CSV formats
@@ -70,6 +73,7 @@ This output shows:
 * selected preferred model
 
 ![Model Output](document_intelligence_output.png)
+
 *This output shows how both models are evaluated side by side before selecting the preferred summary.*
 
 ---
@@ -110,10 +114,11 @@ src/
 input/
 requirements.txt
 README.md
+```
 
 ---
 
-## Running the project 
+## Running the project
 
 ```bash
 python3 -m venv .venv
@@ -145,6 +150,5 @@ This project showed that model comparison is important even for a simple documen
 ## Author
 
 Keerthija
-
-
 M.Eng. Information Technology (Specialization: Artificial Intelligence)
+
