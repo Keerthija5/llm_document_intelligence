@@ -1,4 +1,5 @@
 # LLM-Based Document Intelligence System
+A simple LLM-based system for processing unstructured documents, comparing model outputs, and generating structured insights.
 
 ## Overview
 
@@ -69,6 +70,7 @@ This output shows:
 * selected preferred model
 
 ![Model Output](document_intelligence_output.png)
+*This output shows how both models are evaluated side by side before selecting the preferred summary.*
 
 ---
 
@@ -95,7 +97,23 @@ This output shows:
 
 ---
 
-## Running the project
+## Project Structure
+
+```text
+src/
+  main.py
+  llm_processor.py
+  parser.py
+  evaluator.py
+  exporter.py
+
+input/
+requirements.txt
+README.md
+
+---
+
+## Running the project 
 
 ```bash
 python3 -m venv .venv
