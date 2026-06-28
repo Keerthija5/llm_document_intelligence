@@ -39,7 +39,7 @@ def main():
             result["t5_summary"] = summary_t5
             result["models_used"] = ["BART", "T5"]
 
-            evaluation = compare_summaries(summary_bart, summary_t5)
+            evaluation = compare_summaries(summary_bart, summary_t5, text, result["action_items"])
             result["evaluation"] = evaluation
 
             save_json_output(file_name, result, output_folder)
@@ -55,6 +55,18 @@ def main():
                 "category": result["category"],
                 "priority": result["priority"],
                 "urgency": result["urgency"],
+                "responsible_team": result["responsible_team"],
+                "involved_teams": " | ".join(result["involved_teams"]),
+                "workflow_status": result["workflow_status"],
+                "business_impact": result["business_impact"],
+                "deadlines": " | ".join(result["deadlines"]),
+                "risks": ", ".join(result["risks"]),
+                "sentiment": result["sentiment"],
+                "validation_score": result["validation"]["validation_score"],
+                "human_review_required": result["human_review"]["review_required"],
+                "review_reasons": " | ".join(result["human_review"]["reasons"]),
+                "recommended_next_action": result["recommended_next_action"],
+                "preferred_reason": evaluation["preferred_reason"],
                 "keywords": ", ".join(result["keywords"])
             })
 
