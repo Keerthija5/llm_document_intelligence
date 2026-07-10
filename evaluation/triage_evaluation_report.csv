@@ -1,0 +1,11 @@
+case_id,expected_category,actual_category,expected_priority,actual_priority,expected_urgency,actual_urgency,expected_team,actual_team,expected_review_required,actual_review_required,expected_min_action_items,actual_action_items,validation_score,category_match,priority_match,urgency_match,team_match,review_flag_match,action_items_ok
+maintenance_fault_shift,Maintenance Report,Maintenance Report,Medium,Medium,Urgent,Urgent,Maintenance,Maintenance,True,True,2,3,100,True,True,True,True,True,True
+customer_refund_complaint,Customer Complaint,Customer Complaint,Medium,Medium,Moderate,Moderate,Customer Support,Customer Support,True,True,1,1,100,True,True,True,True,True,True
+meeting_standard_template,Meeting Notes,Meeting Notes,Medium,Medium,Moderate,Moderate,Process Improvement,Process Improvement,True,True,2,2,100,True,True,True,True,True,True
+job_rejection_sap,Job Application Rejection,Job Application Rejection,Low,Low,Low,Low,Career Tracking,Career Tracking,False,False,0,0,100,True,True,True,True,True,True
+job_alert_ml_engineer,Job Alert / Career Opportunity,Job Alert / Career Opportunity,Medium,Medium,Moderate,Moderate,Career Tracking,Career Tracking,False,False,1,1,100,True,True,True,True,True,True
+interview_invitation,Interview Invitation,Interview Invitation,Medium,Medium,Urgent,Urgent,Career Tracking,Career Tracking,True,True,1,1,100,True,True,True,True,True,True
+incident_outage,Incident Report,Incident Report,High,High,Urgent,Urgent,Engineering,Engineering,True,True,1,1,100,True,True,True,True,True,True
+procurement_invoice,Procurement Document,Procurement Document,Medium,Medium,Urgent,Urgent,Procurement,Procurement,True,True,1,1,100,True,True,True,True,True,True
+event_ticket_alert,Event / Ticket Alert,Event / Ticket Alert,Medium,Medium,Moderate,Moderate,Personal Review,Personal Review,False,False,0,0,100,True,True,True,True,True,True
+personal_message,Personal Message,Personal Message,Low,Low,Low,Low,Personal Review,Personal Review,False,False,0,0,100,True,True,True,True,True,True

@@ -1,0 +1,10 @@
+{
+  "total_cases": 10,
+  "category_accuracy_percent": 100.0,
+  "priority_accuracy_percent": 100.0,
+  "urgency_accuracy_percent": 100.0,
+  "responsible_team_accuracy_percent": 100.0,
+  "review_flag_accuracy_percent": 100.0,
+  "action_item_detection_percent": 100.0,
+  "average_validation_score": 100.0
+}

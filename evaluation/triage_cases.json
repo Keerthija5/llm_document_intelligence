@@ -1,0 +1,122 @@
+[
+  {
+    "id": "maintenance_fault_shift",
+    "text": "The maintenance team reported repeated faults in the conveyor sensor system during the evening shift. Engineering should review the fault logs and identify the possible root cause. Maintenance needs to inspect the unit before the next production cycle. A short update should be shared with the operations manager by tomorrow morning.",
+    "expected": {
+      "category": "Maintenance Report",
+      "priority": "Medium",
+      "urgency": "Urgent",
+      "responsible_team": "Maintenance",
+      "review_required": true,
+      "min_action_items": 2
+    }
+  },
+  {
+    "id": "customer_refund_complaint",
+    "text": "A customer submitted a complaint about delayed delivery and requested a refund. The support team should check the ticket history, contact logistics, and prepare an update for the customer by Friday.",
+    "expected": {
+      "category": "Customer Complaint",
+      "priority": "Medium",
+      "urgency": "Moderate",
+      "responsible_team": "Customer Support",
+      "review_required": true,
+      "min_action_items": 1
+    }
+  },
+  {
+    "id": "meeting_standard_template",
+    "text": "In today's meeting, the process improvement team discussed delays in processing internal maintenance requests. Different formats are being used by different teams, which is creating confusion. The team should evaluate whether a standard request template can reduce review time. A proposal should be prepared by Friday.",
+    "expected": {
+      "category": "Meeting Notes",
+      "priority": "Medium",
+      "urgency": "Moderate",
+      "responsible_team": "Process Improvement",
+      "review_required": true,
+      "min_action_items": 2
+    }
+  },
+  {
+    "id": "job_rejection_sap",
+    "text": "Dear Keerthija Bontu, thank you for applying for a new career opportunity within SAP. After carefully reviewing your application, we regret to inform you that we have chosen to pursue other applicants. We invite you to continue your search and set up a job agent in the SAP Career Center to learn about future opportunities.",
+    "expected": {
+      "category": "Job Application Rejection",
+      "priority": "Low",
+      "urgency": "Low",
+      "responsible_team": "Career Tracking",
+      "review_required": false,
+      "min_action_items": 0
+    }
+  },
+  {
+    "id": "job_alert_ml_engineer",
+    "text": "One new job ad for your search alert: Machine Learning Engineer. The role focuses on Python, data pipelines, model evaluation, and deployment support. Review the job description and decide whether to apply this week.",
+    "expected": {
+      "category": "Job Alert / Career Opportunity",
+      "priority": "Medium",
+      "urgency": "Moderate",
+      "responsible_team": "Career Tracking",
+      "review_required": false,
+      "min_action_items": 1
+    }
+  },
+  {
+    "id": "interview_invitation",
+    "text": "We would like to invite you to an interview for the AI internship role. Please choose one of the available time slots by tomorrow morning and upload your enrollment certificate before the interview.",
+    "expected": {
+      "category": "Interview Invitation",
+      "priority": "Medium",
+      "urgency": "Urgent",
+      "responsible_team": "Career Tracking",
+      "review_required": true,
+      "min_action_items": 1
+    }
+  },
+  {
+    "id": "incident_outage",
+    "text": "Incident report: the packaging line stopped for 35 minutes after a controller failure. Operations and engineering must analyze the cause immediately and share a recovery note with management.",
+    "expected": {
+      "category": "Incident Report",
+      "priority": "High",
+      "urgency": "Urgent",
+      "responsible_team": "Engineering",
+      "review_required": true,
+      "min_action_items": 1
+    }
+  },
+  {
+    "id": "procurement_invoice",
+    "text": "The supplier invoice and purchase order do not match. Procurement should verify the item quantity, check the supplier record, and request corrected billing before the next payment cycle.",
+    "expected": {
+      "category": "Procurement Document",
+      "priority": "Medium",
+      "urgency": "Urgent",
+      "responsible_team": "Procurement",
+      "review_required": true,
+      "min_action_items": 1
+    }
+  },
+  {
+    "id": "event_ticket_alert",
+    "text": "Ticket alert: new concert tickets are available for the Munich event. Prices are valid this week and seats may sell out soon.",
+    "expected": {
+      "category": "Event / Ticket Alert",
+      "priority": "Medium",
+      "urgency": "Moderate",
+      "responsible_team": "Personal Review",
+      "review_required": false,
+      "min_action_items": 0
+    }
+  },
+  {
+    "id": "personal_message",
+    "text": "Good morning, I hope your exam preparation is going well. No action is needed, I just wanted to wish you good luck.",
+    "expected": {
+      "category": "Personal Message",
+      "priority": "Low",
+      "urgency": "Low",
+      "responsible_team": "Personal Review",
+      "review_required": false,
+      "min_action_items": 0
+    }
+  }
+]

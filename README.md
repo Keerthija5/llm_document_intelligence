@@ -24,6 +24,7 @@ The goal is not to replace a person. The goal is to create a first-pass triage l
 - Output validation score for checking whether required structured fields are present
 - Batch triage table for reviewing multiple documents
 - JSON and CSV export for downstream analysis or reporting
+- Small labeled evaluation set for checking category, routing, priority, urgency, action-item, and human-review logic
 
 ## Why Triage Matters
 
@@ -38,6 +39,38 @@ The important part of this project is the step after summarisation. A short summ
 - human-review flag
 
 That is why the dashboard combines model summaries with rule-based checks. The rules are not perfect, but they make the system easier to inspect and improve than a black-box answer alone.
+
+## Structured Triage Evaluation
+
+After testing the dashboard manually, I added a small labeled evaluation set to make the project less subjective. The evaluation checks whether the system routes different business and email examples correctly.
+
+The current evaluation set contains 10 examples:
+
+- maintenance fault report
+- customer refund complaint
+- meeting note with process issue
+- job application rejection
+- job alert
+- interview invitation
+- incident/outage report
+- procurement invoice issue
+- event ticket alert
+- personal message
+
+Latest local evaluation result:
+
+```text
+Cases tested: 10
+Category accuracy: 100.0%
+Priority accuracy: 100.0%
+Urgency accuracy: 100.0%
+Team routing accuracy: 100.0%
+Review flag accuracy: 100.0%
+Action-item detection: 100.0%
+Average validation score: 100.0/100
+```
+
+This is not a large production benchmark. I use it as a controlled regression check so that new rules do not accidentally break important categories like job rejections, incidents, maintenance reports, or procurement documents.
 
 ## Supported Document Types
 
@@ -141,6 +174,7 @@ Expected structured output:
 ```text
 app.py
 requirements.txt
+run_triage_evaluation.py
 src/
   main.py
   llm_processor.py
@@ -151,6 +185,10 @@ src/
 data/
   input/
   output/
+evaluation/
+  triage_cases.json
+  triage_evaluation_report.csv
+  triage_evaluation_summary.json
 assets/
   screenshots/
 ```
@@ -177,6 +215,19 @@ python3 -m streamlit run app.py
 ```
 
 The first processing run can take longer because BART and T5 load locally. Short alerts and very small texts are handled without forcing long model summaries.
+
+Run the structured triage evaluation:
+
+```bash
+python3 run_triage_evaluation.py
+```
+
+The evaluation outputs are saved in:
+
+```text
+evaluation/triage_evaluation_report.csv
+evaluation/triage_evaluation_summary.json
+```
 
 ## Command-Line Batch Processing
 
@@ -211,18 +262,18 @@ One useful lesson was that a technically correct summary is not always the most 
 - Screenshot/image OCR is not included in this version.
 - PDF support is not the focus of this project; this system is mainly for text, email, and business communication triage.
 - The system does not yet store long-term document history in a database.
-- The model comparison is heuristic, not a human-labeled evaluation benchmark.
+- The BART/T5 model comparison is heuristic; the labeled evaluation currently focuses on the structured triage logic.
+- The labeled evaluation set is still small and should be expanded with more real-world documents.
 
 ## Future Improvements
 
-- Add OCR support for screenshots and scanned documents
-- Add PDF and DOCX parsing
 - Add a trained classifier for category detection
-- Add confidence scores for category and team routing
+- Add more labeled samples for category and routing evaluation
+- Add confidence scores for category and team routing based on evidence strength
 - Add a lightweight database for tracking document history
 - Add charts for category distribution and review workload
-- Add a small labeled evaluation set for category and action-item extraction
+- Add API endpoints for connecting the triage output to another workflow
 
 ## Resume Summary
 
-Built a Streamlit-based LLM document triage dashboard that compares BART and T5 summaries, classifies unstructured business documents and emails, extracts workflow fields such as category, priority, urgency, responsible team, risks, deadlines, action items, and recommended next action, and exports validated JSON/CSV outputs with human-review flags.
+Built a Streamlit-based LLM document triage dashboard that compares BART and T5 summaries, classifies unstructured business documents and emails, extracts workflow fields such as category, priority, urgency, responsible team, risks, deadlines, action items, and recommended next action, exports validated JSON/CSV outputs with human-review flags, and includes a small labeled evaluation set for checking triage quality.

@@ -77,6 +77,7 @@ def detect_responsible_team(text):
         "Customer Support": ["customer", "complaint", "ticket", "support", "service"],
         "Recruitment / HR": ["candidate", "application", "interview", "hiring", "recruitment", "career", "role"],
         "Process Improvement": ["process improvement", "standard template", "review time", "efficiency"],
+        "Procurement": ["procurement", "invoice", "purchase order", "supplier", "billing", "payment"],
         "Management": ["manager", "stakeholder", "leadership", "approval", "decision"],
     }
 
@@ -113,6 +114,7 @@ def detect_involved_teams(text):
         "Customer Support": ["customer", "complaint", "ticket", "support", "service"],
         "Recruitment / HR": ["candidate", "application", "interview", "hiring", "recruitment", "career", "role"],
         "Process Improvement": ["process improvement", "standard template", "review time", "efficiency"],
+        "Procurement": ["procurement", "invoice", "purchase order", "supplier", "billing", "payment"],
         "Management": ["manager", "stakeholder", "leadership", "approval", "decision"],
     }
 
@@ -219,14 +221,14 @@ def detect_category(text):
         return "Schedule / Timetable"
     if "good morning" in text_lower or "good night" in text_lower:
         return "Personal Message"
+    if "incident" in text_lower or "outage" in text_lower or "production stopped" in text_lower:
+        return "Incident Report"
     if "meeting" in text_lower or "minutes" in text_lower or "discussed" in text_lower:
         return "Meeting Notes"
     if "customer" in text_lower and ("complaint" in text_lower or "refund" in text_lower or "dissatisfied" in text_lower):
         return "Customer Complaint"
     if "maintenance" in text_lower and ("report" in text_lower or "inspect" in text_lower or "unit" in text_lower):
         return "Maintenance Report"
-    if "incident" in text_lower or "outage" in text_lower or "production stopped" in text_lower:
-        return "Incident Report"
     if "ticket" in text_lower or "complaint" in text_lower or "issue" in text_lower or "fault" in text_lower:
         return "Support Ticket"
     if "project" in text_lower and ("update" in text_lower or "milestone" in text_lower or "timeline" in text_lower):
