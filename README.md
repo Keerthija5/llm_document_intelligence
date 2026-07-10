@@ -2,7 +2,7 @@
 
 This project is a practical document intelligence system for converting unstructured business text into structured workflow-ready outputs. It compares BART and T5 summaries, classifies incoming documents or emails, extracts action items and business fields, flags documents that need human review, and exports results as JSON or CSV.
 
-I built this project to understand how LLM-based summarisation and rule-based evaluation can be combined in a useful workflow. Instead of only generating a summary, the system tries to answer practical questions such as:
+I built this project because many messages are easy to read one by one, but hard to manage as a queue. A maintenance note, customer complaint, meeting update, job alert, or rejection email may all need different handling. Instead of only generating a summary, the system tries to answer practical questions such as:
 
 - What type of document is this?
 - Is it urgent or high priority?
@@ -10,6 +10,8 @@ I built this project to understand how LLM-based summarisation and rule-based ev
 - Are there risks, deadlines, or action items?
 - Which model output is more useful?
 - Does the extracted output need human review?
+
+The goal is not to replace a person. The goal is to create a first-pass triage layer that makes messy text easier to review, route, and export.
 
 ## Features
 
@@ -22,6 +24,20 @@ I built this project to understand how LLM-based summarisation and rule-based ev
 - Output validation score for checking whether required structured fields are present
 - Batch triage table for reviewing multiple documents
 - JSON and CSV export for downstream analysis or reporting
+
+## Why Triage Matters
+
+The important part of this project is the step after summarisation. A short summary is helpful, but a workflow usually needs structure:
+
+- category
+- priority and urgency
+- responsible team
+- risks and deadlines
+- action items
+- recommended next action
+- human-review flag
+
+That is why the dashboard combines model summaries with rule-based checks. The rules are not perfect, but they make the system easier to inspect and improve than a black-box answer alone.
 
 ## Supported Document Types
 
@@ -72,6 +88,19 @@ Human-review and validation checks
         |
 JSON / CSV export
 ```
+
+## What I Tested With
+
+I tested the workflow with short and medium-length examples such as:
+
+- maintenance reports with faults and deadlines
+- meeting notes with follow-up actions
+- customer/support-style messages
+- job alerts
+- job rejection emails
+- reminder-style messages
+
+This testing helped me add categories that are more realistic for everyday document triage, not only formal business reports.
 
 ## Example Use Case
 
@@ -173,12 +202,16 @@ data/output/
 
 This project helped me understand that document intelligence is not only about generating summaries. A useful system also needs structured extraction, output validation, model comparison, and human-review logic. I also learned that classification rules need to be tested with real examples, because short messages, job alerts, rejection emails, and operational reports behave differently.
 
+One useful lesson was that a technically correct summary is not always the most useful output. For example, a rejection email should be tracked as an application outcome, not routed like a normal task request. That kind of detail made the project feel closer to a real workflow.
+
 ## Current Limitations
 
 - The summarisation models run locally and can be slow on a laptop.
 - The classification and routing logic is rule-based, so it can be improved with trained classifiers in the future.
 - Screenshot/image OCR is not included in this version.
 - PDF support is not the focus of this project; this system is mainly for text, email, and business communication triage.
+- The system does not yet store long-term document history in a database.
+- The model comparison is heuristic, not a human-labeled evaluation benchmark.
 
 ## Future Improvements
 
@@ -188,6 +221,7 @@ This project helped me understand that document intelligence is not only about g
 - Add confidence scores for category and team routing
 - Add a lightweight database for tracking document history
 - Add charts for category distribution and review workload
+- Add a small labeled evaluation set for category and action-item extraction
 
 ## Resume Summary
 
