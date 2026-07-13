@@ -13,6 +13,8 @@ I built this project because many messages are easy to read one by one, but hard
 
 The goal is not to replace a person. The goal is to create a first-pass triage layer that makes messy text easier to review, route, and export.
 
+I later added a small queue-monitoring layer because I noticed that triage is not only about one document. In a real workflow, I would also need to know whether a document was already processed, how confident the routing decision was, how long processing took, and which items need review first.
+
 ## Features
 
 - Streamlit dashboard for processing pasted text or uploaded `.txt`, `.md`, and `.eml` files
@@ -21,6 +23,10 @@ The goal is not to replace a person. The goal is to create a first-pass triage l
 - Classification of business and everyday communication types
 - Structured extraction of priority, urgency, responsible team, involved teams, risks, deadlines, sentiment, and recommended next action
 - Human-review flag for urgent, risky, unclear, or operationally important documents
+- Processing IDs and document hashes for tracking processed items without storing the full text in the run log
+- Duplicate detection inside a batch
+- Routing confidence based on category, team, risks, deadlines, and extracted actions
+- Local CSV run log for review status, validation score, routing confidence, and processing latency
 - Output validation score for checking whether required structured fields are present
 - Batch triage table for reviewing multiple documents
 - JSON and CSV export for downstream analysis or reporting
@@ -119,8 +125,29 @@ Model output evaluation
         |
 Human-review and validation checks
         |
+Queue monitoring log
+        |
 JSON / CSV export
 ```
+
+## Queue Monitoring
+
+For each processed document, the dashboard now adds:
+
+- a short processing ID
+- a document hash for duplicate detection
+- duplicate status
+- routing confidence
+- processing latency in milliseconds
+- review-required status and review reasons
+
+The local run log is saved to:
+
+```text
+data/output/triage_run_log.csv
+```
+
+I added this because a triage tool should be easy to audit. If the system routes a document incorrectly, the log gives me a simple way to check what category, team, priority, validation score, and review flag were produced during that run. The log is kept local and is not committed to Git.
 
 ## What I Tested With
 
@@ -168,6 +195,7 @@ Expected structured output:
 - T5 (`t5-small`)
 - Pandas
 - Rule-based NLP and validation logic
+- Local CSV workflow logging
 
 ## Project Structure
 
@@ -262,6 +290,7 @@ One useful lesson was that a technically correct summary is not always the most 
 - Screenshot/image OCR is not included in this version.
 - PDF support is not the focus of this project; this system is mainly for text, email, and business communication triage.
 - The system does not yet store long-term document history in a database.
+- The run log is local CSV-based, not a production database.
 - The BART/T5 model comparison is heuristic; the labeled evaluation currently focuses on the structured triage logic.
 - The labeled evaluation set is still small and should be expanded with more real-world documents.
 
@@ -270,10 +299,10 @@ One useful lesson was that a technically correct summary is not always the most 
 - Add a trained classifier for category detection
 - Add more labeled samples for category and routing evaluation
 - Add confidence scores for category and team routing based on evidence strength
-- Add a lightweight database for tracking document history
+- Move the CSV run log into a lightweight database if the queue becomes larger
 - Add charts for category distribution and review workload
 - Add API endpoints for connecting the triage output to another workflow
 
 ## Resume Summary
 
-Built a Streamlit-based LLM document triage dashboard that compares BART and T5 summaries, classifies unstructured business documents and emails, extracts workflow fields such as category, priority, urgency, responsible team, risks, deadlines, action items, and recommended next action, exports validated JSON/CSV outputs with human-review flags, and includes a small labeled evaluation set for checking triage quality.
+Built a Streamlit-based LLM document triage dashboard that compares BART and T5 summaries, classifies unstructured business documents and emails, extracts workflow fields such as category, priority, urgency, responsible team, risks, deadlines, action items, and recommended next action, exports validated JSON/CSV outputs with human-review flags, logs processing IDs, duplicate status, routing confidence, and latency, and includes a small labeled evaluation set for checking triage quality.

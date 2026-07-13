@@ -1,5 +1,6 @@
 import sys
 import os
+from time import perf_counter
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -8,6 +9,13 @@ from llm_processor import generate_summary_with_model
 from parser import build_result
 from exporter import save_json_output, save_csv_output
 from evaluator import compare_summaries
+from workflow_log import (
+    append_run_log,
+    assess_routing_confidence,
+    build_document_hash,
+    build_processing_id,
+    find_duplicate_hashes,
+)
 
 
 def main():
@@ -26,15 +34,30 @@ def main():
         return
 
     all_results = []
+    processed_results = []
+    duplicate_hashes = find_duplicate_hashes(documents)
 
     for file_name, text in documents:
         print(f"\nProcessing: {file_name}")
 
         try:
+            start_time = perf_counter()
+            document_hash = build_document_hash(text)
             summary_bart = generate_summary_with_model(text, "bart")
             summary_t5 = generate_summary_with_model(text, "t5")
 
             result = build_result(text, summary_bart)
+            duplicate = document_hash in duplicate_hashes
+            if duplicate:
+                result["workflow_status"] = "Duplicate detected"
+                result["human_review"]["review_required"] = True
+                result["human_review"]["reasons"].append("Duplicate document detected")
+            result["file_name"] = file_name
+            result["processing_id"] = build_processing_id(file_name, document_hash)
+            result["document_hash"] = document_hash
+            result["duplicate"] = duplicate
+            result["routing"] = assess_routing_confidence(result)
+            result["processing_latency_ms"] = round((perf_counter() - start_time) * 1000, 2)
             result["bart_summary"] = summary_bart
             result["t5_summary"] = summary_t5
             result["models_used"] = ["BART", "T5"]
@@ -43,6 +66,7 @@ def main():
             result["evaluation"] = evaluation
 
             save_json_output(file_name, result, output_folder)
+            processed_results.append(result)
 
             all_results.append({
                 "file_name": file_name,
@@ -58,6 +82,8 @@ def main():
                 "responsible_team": result["responsible_team"],
                 "involved_teams": " | ".join(result["involved_teams"]),
                 "workflow_status": result["workflow_status"],
+                "routing_confidence": result["routing"]["overall"],
+                "duplicate": result["duplicate"],
                 "business_impact": result["business_impact"],
                 "deadlines": " | ".join(result["deadlines"]),
                 "risks": ", ".join(result["risks"]),
@@ -67,7 +93,10 @@ def main():
                 "review_reasons": " | ".join(result["human_review"]["reasons"]),
                 "recommended_next_action": result["recommended_next_action"],
                 "preferred_reason": evaluation["preferred_reason"],
-                "keywords": ", ".join(result["keywords"])
+                "keywords": ", ".join(result["keywords"]),
+                "processing_id": result["processing_id"],
+                "document_hash": result["document_hash"],
+                "processing_latency_ms": result["processing_latency_ms"],
             })
 
             print("Done")
@@ -77,6 +106,7 @@ def main():
 
     if all_results:
         save_csv_output(all_results, output_folder)
+        append_run_log(processed_results)
         print(f"\nFinished. Outputs saved in: {output_folder}")
     else:
         print("\nNo results were saved.")
