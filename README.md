@@ -13,7 +13,7 @@ I built this project because many messages are easy to read one by one, but hard
 
 The goal is not to replace a person. The goal is to create a first-pass triage layer that makes messy text easier to review, route, and export.
 
-I later added a small queue-monitoring layer because I noticed that triage is not only about one document. In a real workflow, I would also need to know whether a document was already processed, how confident the routing decision was, how long processing took, and which items need review first.
+I later added a small queue-monitoring layer because I noticed that triage is not only about one document. In a real workflow, I would also need to know whether a document was already processed, how confident the routing decision was, why something was sent for review, how long processing took, and which items should be checked first.
 
 ## Features
 
@@ -25,7 +25,11 @@ I later added a small queue-monitoring layer because I noticed that triage is no
 - Human-review flag for urgent, risky, unclear, or operationally important documents
 - Processing IDs and document hashes for tracking processed items without storing the full text in the run log
 - Duplicate detection inside a batch
-- Routing confidence based on category, team, risks, deadlines, and extracted actions
+- Routing confidence with visible evidence checks for category, team, priority, and review signals
+- Review queue controls to filter only documents that need human review
+- Category and responsible-team filters for checking larger batches more easily
+- Queue scoring to bring urgent, uncertain, duplicate, or review-required items to the top
+- Batch summary tables for category counts, team counts, and review reasons
 - Local CSV run log for review status, validation score, routing confidence, and processing latency
 - Output validation score for checking whether required structured fields are present
 - Batch triage table for reviewing multiple documents
@@ -125,7 +129,7 @@ Model output evaluation
         |
 Human-review and validation checks
         |
-Queue monitoring log
+Queue monitoring, filters, and review reasons
         |
 JSON / CSV export
 ```
@@ -138,8 +142,18 @@ For each processed document, the dashboard now adds:
 - a document hash for duplicate detection
 - duplicate status
 - routing confidence
+- routing evidence checks
+- a queue score for review ordering
 - processing latency in milliseconds
 - review-required status and review reasons
+
+The batch table can also be filtered by:
+
+- review-required documents only
+- category
+- responsible team
+
+I added these controls because a triage tool should not only show results; it should also help decide what needs attention first. For example, a duplicate document, an urgent maintenance report, or a document with low routing confidence should be easier to notice than a normal low-priority message.
 
 The local run log is saved to:
 
@@ -147,7 +161,7 @@ The local run log is saved to:
 data/output/triage_run_log.csv
 ```
 
-I added this because a triage tool should be easy to audit. If the system routes a document incorrectly, the log gives me a simple way to check what category, team, priority, validation score, and review flag were produced during that run. The log is kept local and is not committed to Git.
+I added this because a triage tool should be easy to audit. If the system routes a document incorrectly, the log gives me a simple way to check what category, team, priority, validation score, routing confidence, and review flag were produced during that run. The log is kept local and is not committed to Git.
 
 ## What I Tested With
 
@@ -210,6 +224,7 @@ src/
   evaluator.py
   exporter.py
   file_handler.py
+  workflow_log.py
 data/
   input/
   output/
@@ -277,11 +292,15 @@ Outputs are written to:
 data/output/
 ```
 
+The batch reader supports `.txt`, `.md`, and `.eml` files. I kept this part simple because the project is focused on text and email triage, not document OCR.
+
 ## What I Learned
 
-This project helped me understand that document intelligence is not only about generating summaries. A useful system also needs structured extraction, output validation, model comparison, and human-review logic. I also learned that classification rules need to be tested with real examples, because short messages, job alerts, rejection emails, and operational reports behave differently.
+This project helped me understand that document intelligence is not only about generating summaries. A useful system also needs structured extraction, output validation, model comparison, routing evidence, and human-review logic. I also learned that classification rules need to be tested with real examples, because short messages, job alerts, rejection emails, and operational reports behave differently.
 
 One useful lesson was that a technically correct summary is not always the most useful output. For example, a rejection email should be tracked as an application outcome, not routed like a normal task request. That kind of detail made the project feel closer to a real workflow.
+
+Another lesson was that confidence should not be shown as a magic number without explanation. I therefore added visible routing checks so I can see whether the system actually found evidence for the category, team, priority/action signal, and review decision.
 
 ## Current Limitations
 
@@ -290,19 +309,16 @@ One useful lesson was that a technically correct summary is not always the most 
 - Screenshot/image OCR is not included in this version.
 - PDF support is not the focus of this project; this system is mainly for text, email, and business communication triage.
 - The system does not yet store long-term document history in a database.
-- The run log is local CSV-based, not a production database.
+- The run log is local CSV-based, so it is meant for review and learning rather than long-term system storage.
 - The BART/T5 model comparison is heuristic; the labeled evaluation currently focuses on the structured triage logic.
-- The labeled evaluation set is still small and should be expanded with more real-world documents.
+- The queue score is a simple review-ordering helper, not a trained ranking model.
+- The labeled evaluation set is still small and should be expanded with more varied document examples.
 
 ## Future Improvements
 
 - Add a trained classifier for category detection
 - Add more labeled samples for category and routing evaluation
-- Add confidence scores for category and team routing based on evidence strength
+- Make the routing confidence more data-driven instead of mostly rule-based
 - Move the CSV run log into a lightweight database if the queue becomes larger
 - Add charts for category distribution and review workload
 - Add API endpoints for connecting the triage output to another workflow
-
-## Resume Summary
-
-Built a Streamlit-based LLM document triage dashboard that compares BART and T5 summaries, classifies unstructured business documents and emails, extracts workflow fields such as category, priority, urgency, responsible team, risks, deadlines, action items, and recommended next action, exports validated JSON/CSV outputs with human-review flags, logs processing IDs, duplicate status, routing confidence, and latency, and includes a small labeled evaluation set for checking triage quality.

@@ -17,12 +17,18 @@ from evaluator import compare_summaries
 from llm_processor import generate_summary_with_model
 from parser import build_result
 from workflow_log import (
+    apply_routing_review_flag,
     append_run_log,
     assess_routing_confidence,
     build_document_hash,
     build_processing_id,
     find_duplicate_hashes,
 )
+
+
+PRIORITY_SCORE = {"High": 3, "Medium": 2, "Low": 1}
+URGENCY_SCORE = {"Urgent": 3, "Moderate": 2, "Low": 1}
+ROUTING_REVIEW_SCORE = {"Low": 3, "Medium": 2, "High": 1}
 
 
 st.set_page_config(
@@ -42,11 +48,14 @@ def process_document(file_name: str, text: str, duplicate_hashes: set[str]) -> d
     evaluation = compare_summaries(bart_summary, t5_summary, text, result["action_items"])
     processing_latency_ms = round((perf_counter() - start_time) * 1000, 2)
     routing = assess_routing_confidence(result)
+    result["routing"] = routing
+    apply_routing_review_flag(result)
     duplicate = document_hash in duplicate_hashes
     if duplicate:
         result["workflow_status"] = "Duplicate detected"
         result["human_review"]["review_required"] = True
-        result["human_review"]["reasons"].append("Duplicate document detected")
+        if "Duplicate document detected" not in result["human_review"]["reasons"]:
+            result["human_review"]["reasons"].append("Duplicate document detected")
 
     result.update(
         {
@@ -54,7 +63,6 @@ def process_document(file_name: str, text: str, duplicate_hashes: set[str]) -> d
             "processing_id": build_processing_id(file_name, document_hash),
             "document_hash": document_hash,
             "duplicate": duplicate,
-            "routing": routing,
             "processing_latency_ms": processing_latency_ms,
             "bart_summary": bart_summary,
             "t5_summary": t5_summary,
@@ -100,9 +108,42 @@ def build_table(results: list[dict]) -> pd.DataFrame:
                 "risks": ", ".join(result["risks"]),
                 "recommended_next_action": result["recommended_next_action"],
                 "processing_latency_ms": result["processing_latency_ms"],
+                "queue_score": calculate_queue_score(result),
             }
         )
     return pd.DataFrame(rows)
+
+
+def calculate_queue_score(result: dict) -> int:
+    score = 0
+    if result["human_review"]["review_required"]:
+        score += 5
+    if result.get("duplicate"):
+        score += 2
+    score += PRIORITY_SCORE.get(result.get("priority"), 0)
+    score += URGENCY_SCORE.get(result.get("urgency"), 0)
+    score += ROUTING_REVIEW_SCORE.get(result.get("routing", {}).get("overall"), 0)
+    return score
+
+
+def sort_triage_queue(table: pd.DataFrame) -> pd.DataFrame:
+    if table.empty:
+        return table
+    return table.sort_values(
+        by=["review_required", "queue_score", "processing_latency_ms"],
+        ascending=[False, False, False],
+    )
+
+
+def summarize_review_reasons(results: list[dict]) -> pd.DataFrame:
+    reasons = [
+        reason
+        for result in results
+        for reason in result["human_review"]["reasons"]
+    ]
+    if not reasons:
+        return pd.DataFrame(columns=["reason", "count"])
+    return pd.Series(reasons, name="reason").value_counts().reset_index(name="count")
 
 
 def results_to_json(results: list[dict]) -> str:
@@ -166,6 +207,7 @@ results = st.session_state.results
 
 if results:
     table = build_table(results)
+    queue_table = sort_triage_queue(table)
 
     total_documents = len(results)
     review_count = int(table["review_required"].sum())
@@ -180,9 +222,33 @@ if results:
 
     st.markdown("### Batch Triage Table")
     st.caption("Queue monitoring")
-    st.dataframe(table, use_container_width=True, hide_index=True)
+    f1, f2, f3 = st.columns(3)
+    review_only = f1.toggle("Show review queue only", value=False)
+    category_options = ["All"] + sorted(table["category"].dropna().unique().tolist())
+    team_options = ["All"] + sorted(table["responsible_team"].dropna().unique().tolist())
+    selected_category = f2.selectbox("Category", category_options)
+    selected_team = f3.selectbox("Responsible team", team_options)
+
+    display_table = queue_table.copy()
+    if review_only:
+        display_table = display_table[display_table["review_required"]]
+    if selected_category != "All":
+        display_table = display_table[display_table["category"] == selected_category]
+    if selected_team != "All":
+        display_table = display_table[display_table["responsible_team"] == selected_team]
+
+    st.dataframe(display_table, use_container_width=True, hide_index=True)
     if st.session_state.get("log_path"):
         st.caption(f"Run log saved locally: {st.session_state.log_path}")
+
+    with st.expander("Batch summary"):
+        s1, s2, s3 = st.columns(3)
+        s1.markdown("**Categories**")
+        s1.dataframe(table["category"].value_counts().reset_index(name="count"), hide_index=True)
+        s2.markdown("**Responsible teams**")
+        s2.dataframe(table["responsible_team"].value_counts().reset_index(name="count"), hide_index=True)
+        s3.markdown("**Review reasons**")
+        s3.dataframe(summarize_review_reasons(results), hide_index=True)
 
     selected_file = st.selectbox("Review one document", [result["file_name"] for result in results])
     selected = next(result for result in results if result["file_name"] == selected_file)
@@ -226,6 +292,8 @@ if results:
     st.markdown("### Routing Confidence")
     st.metric("Overall", selected["routing"]["overall"])
     st.json(selected["routing"]["evidence"])
+    st.caption("Routing checks")
+    st.json(selected["routing"]["checks"])
 
     st.markdown("### Output Validation")
     v1, v2 = st.columns([1, 3])

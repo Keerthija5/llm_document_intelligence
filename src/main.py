@@ -10,6 +10,7 @@ from parser import build_result
 from exporter import save_json_output, save_csv_output
 from evaluator import compare_summaries
 from workflow_log import (
+    apply_routing_review_flag,
     append_run_log,
     assess_routing_confidence,
     build_document_hash,
@@ -51,12 +52,14 @@ def main():
             if duplicate:
                 result["workflow_status"] = "Duplicate detected"
                 result["human_review"]["review_required"] = True
-                result["human_review"]["reasons"].append("Duplicate document detected")
+                if "Duplicate document detected" not in result["human_review"]["reasons"]:
+                    result["human_review"]["reasons"].append("Duplicate document detected")
             result["file_name"] = file_name
             result["processing_id"] = build_processing_id(file_name, document_hash)
             result["document_hash"] = document_hash
             result["duplicate"] = duplicate
             result["routing"] = assess_routing_confidence(result)
+            apply_routing_review_flag(result)
             result["processing_latency_ms"] = round((perf_counter() - start_time) * 1000, 2)
             result["bart_summary"] = summary_bart
             result["t5_summary"] = summary_t5

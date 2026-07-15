@@ -50,15 +50,13 @@ def assess_routing_confidence(result: dict) -> dict:
         "responsible_team": result.get("involved_teams", []),
         "priority": result.get("risks", []) + result.get("deadlines", []),
     }
-    score = 0
-    if result.get("category") != "General Document":
-        score += 1
-    if result.get("responsible_team") != "Not clearly identified":
-        score += 1
-    if result.get("risks") or result.get("deadlines") or result.get("action_items"):
-        score += 1
+    category_known = result.get("category") != "General Document"
+    team_known = result.get("responsible_team") != "Not clearly identified"
+    priority_supported = bool(result.get("risks") or result.get("deadlines") or result.get("action_items"))
+    review_signal = bool(result.get("human_review", {}).get("review_required"))
 
-    if score >= 3:
+    score = sum([category_known, team_known, priority_supported])
+    if score == 3:
         overall = "High"
     elif score == 2:
         overall = "Medium"
@@ -68,7 +66,23 @@ def assess_routing_confidence(result: dict) -> dict:
     return {
         "overall": overall,
         "evidence": evidence,
+        "checks": {
+            "category_detected": category_known,
+            "responsible_team_detected": team_known,
+            "priority_or_action_signal": priority_supported,
+            "human_review_signal": review_signal,
+        },
     }
+
+
+def apply_routing_review_flag(result: dict) -> dict:
+    routing = result.get("routing", {})
+    if routing.get("overall") == "Low":
+        human_review = result.setdefault("human_review", {"review_required": False, "reasons": []})
+        human_review["review_required"] = True
+        if "Low routing confidence" not in human_review["reasons"]:
+            human_review["reasons"].append("Low routing confidence")
+    return result
 
 
 def append_run_log(results: list[dict], output_path: str | Path = "data/output/triage_run_log.csv") -> Path:

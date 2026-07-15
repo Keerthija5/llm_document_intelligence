@@ -3,7 +3,9 @@ import tempfile
 import unittest
 
 from src.parser import build_result
+from src.file_handler import read_text_files_from_folder
 from src.workflow_log import (
+    apply_routing_review_flag,
     append_run_log,
     assess_routing_confidence,
     build_document_hash,
@@ -50,6 +52,29 @@ class WorkflowLogTests(unittest.TestCase):
             self.assertIn("maintenance.txt", content)
             self.assertIn("routing_confidence", content)
             self.assertEqual(result["routing"]["overall"], "High")
+
+    def test_low_routing_confidence_adds_review_reason(self):
+        result = build_result("This is a short unclear note with no owner.", summary="Unclear note.")
+        result["routing"] = assess_routing_confidence(result)
+
+        apply_routing_review_flag(result)
+
+        self.assertEqual(result["routing"]["overall"], "Low")
+        self.assertTrue(result["human_review"]["review_required"])
+        self.assertIn("Low routing confidence", result["human_review"]["reasons"])
+
+    def test_batch_reader_accepts_text_markdown_and_email_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            (base / "ticket.txt").write_text("Maintenance should inspect the unit.", encoding="utf-8")
+            (base / "note.md").write_text("## Meeting\nThe team should prepare a proposal.", encoding="utf-8")
+            (base / "message.eml").write_text("Subject: Update\nPlease review by Friday.", encoding="utf-8")
+            (base / "ignore.pdf").write_text("not supported here", encoding="utf-8")
+
+            documents = read_text_files_from_folder(base)
+
+            names = {file_name for file_name, _text in documents}
+            self.assertEqual(names, {"ticket.txt", "note.md", "message.eml"})
 
 
 if __name__ == "__main__":
