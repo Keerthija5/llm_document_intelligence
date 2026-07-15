@@ -1,6 +1,6 @@
 # LLM-Based Business Document Triage Dashboard
 
-This project is a practical document intelligence system for converting unstructured business text into structured workflow-ready outputs. It compares BART and T5 summaries, classifies incoming documents or emails, extracts action items and business fields, flags documents that need human review, and exports results as JSON or CSV.
+This project is a practical document triage prototype for turning unstructured business text into reviewable structured outputs. It compares BART and T5 summaries, classifies incoming documents or emails, extracts action items and business fields, flags documents that need human review, and exports results as JSON or CSV.
 
 I built this project because many messages are easy to read one by one, but hard to manage as a queue. A maintenance note, customer complaint, meeting update, job alert, or rejection email may all need different handling. Instead of only generating a summary, the system tries to answer practical questions such as:
 
@@ -33,7 +33,7 @@ I later added a small queue-monitoring layer because I noticed that triage is no
 - Local CSV run log for review status, validation score, routing confidence, and processing latency
 - Output validation score for checking whether required structured fields are present
 - Batch triage table for reviewing multiple documents
-- JSON and CSV export for downstream analysis or reporting
+- JSON and CSV export for later review or reporting
 - Small labeled evaluation set for checking category, routing, priority, urgency, action-item, and human-review logic
 
 ## Why Triage Matters
@@ -80,7 +80,7 @@ Action-item detection: 100.0%
 Average validation score: 100.0/100
 ```
 
-This is not a large production benchmark. I use it as a controlled regression check so that new rules do not accidentally break important categories like job rejections, incidents, maintenance reports, or procurement documents.
+This is not a large benchmark. I use it as a controlled regression check so that new rules do not accidentally break important categories like job rejections, incidents, maintenance reports, or procurement documents.
 
 ## Supported Document Types
 
@@ -319,6 +319,6 @@ Another lesson was that confidence should not be shown as a magic number without
 - Add a trained classifier for category detection
 - Add more labeled samples for category and routing evaluation
 - Make the routing confidence more data-driven instead of mostly rule-based
-- Move the CSV run log into a lightweight database if the queue becomes larger
+- Move the CSV run log into a lightweight database if I test larger batches later
 - Add charts for category distribution and review workload
 - Add API endpoints for connecting the triage output to another workflow
