@@ -48,7 +48,7 @@ The important part of this project is the step after summarisation. A short summ
 - recommended next action
 - human-review flag
 
-That is why the dashboard combines model summaries with rule-based checks. The rules are not perfect, but they make the system easier to inspect and improve than a black-box answer alone.
+That is why the dashboard combines model summaries with rule-based checks. The rule-based checks make the system easier to inspect and improve than a black-box answer alone.
 
 ## Structured Triage Evaluation
 
@@ -302,23 +302,15 @@ One useful lesson was that a technically correct summary is not always the most 
 
 Another lesson was that confidence should not be shown as a magic number without explanation. I therefore added visible routing checks so I can see whether the system actually found evidence for the category, team, priority/action signal, and review decision.
 
-## Current Limitations
+## Project Status and Next Steps
 
-- The summarisation models run locally and can be slow on a laptop.
-- The classification and routing logic is rule-based, so it can be improved with trained classifiers in the future.
-- Screenshot/image OCR is not included in this version.
-- PDF support is not the focus of this project; this system is mainly for text, email, and business communication triage.
-- The system does not yet store long-term document history in a database.
-- The run log is local CSV-based, so it is meant for review and learning rather than long-term system storage.
-- The BART/T5 model comparison is heuristic; the labeled evaluation currently focuses on the structured triage logic.
-- The queue score is a simple review-ordering helper, not a trained ranking model.
-- The labeled evaluation set is still small and should be expanded with more varied document examples.
+This is a local Streamlit prototype for testing document and email triage logic on practical text examples. I kept the routing evidence, review flags, validation checks, and export files visible because I wanted to understand how the system reaches a decision, not only see a final category.
 
-## Future Improvements
+Next things I would like to improve:
 
-- Add a trained classifier for category detection
-- Add more labeled samples for category and routing evaluation
-- Make the routing confidence more data-driven instead of mostly rule-based
-- Move the CSV run log into a lightweight database if I test larger batches later
-- Add charts for category distribution and review workload
-- Add API endpoints for connecting the triage output to another workflow
+- Add more labeled examples from different document types.
+- Compare BART and T5 summaries with a small human-rated checklist.
+- Improve the routing confidence using more test cases.
+- Move the local CSV run log into a lightweight database if I test larger batches later.
+- Add charts for category distribution and review workload.
+- Add API endpoints only if I connect the triage output to another workflow.
