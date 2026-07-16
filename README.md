@@ -82,6 +82,10 @@ Average validation score: 100.0/100
 
 This is not a large benchmark. I use it as a controlled regression check so that new rules do not accidentally break important categories like job rejections, incidents, maintenance reports, or procurement documents.
 
+## Checked in This Version
+
+I tested 10 labeled document examples across everyday and business communication types. The structured output currently covers category, priority, urgency, responsible team, involved teams, risks, deadlines, sentiment, workflow status, business impact, action items, recommended next action, routing confidence, duplicate status, validation score, and review flag. The dashboard exports both JSON and CSV results.
+
 ## Supported Document Types
 
 The system handles several practical text categories:
